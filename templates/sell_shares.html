@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+
+{% block head %}
+    <style>
+        /* The container for select menu */
+        .select_menu_row, .shares_row{
+            display:flex;
+            align-items:center;
+            margin-bottom:30px; /* Spacing between lines */
+            width: 100%
+        }
+
+        /* Fixed width for labls so inputs start at same vertical line */
+        label {
+            width: 150px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        /* Make both inputs same width and reach the same right edge */
+        input {
+            flex: 1; /* This tells the inpnput to grow and full the rest of the row */
+            padding: 5px;
+        }
+
+        button {
+            margin-top: 10px;
+            width: 100%; /* Optional: makes a button as wide as the rows */
+        }
+
+    </style>
+
+
+{% endblock %}
+
+{% block main %}
+    <h1 style="margin-bottom:15px;">Sell stock of shares</h1>
+
+    <div style="width:50%; margin:auto;">
+        <form action="/sell" method="POST">
+
+        <div class="select_menu_row" style="margin-bottom:30px;">
+            <label for="symbol">symbol</label>
+            <select id="symbol" name="symbol">
+                <option selected disabled value=""> &nbsp; </option>
+                {% for row in symbol_n_shares %}
+                    <option>{{ row['symbol'].upper() }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="shares_row">
+            <label for="shares">No. of shares</label>
+            <input id="shares" name="shares" type="number" autocomplete="off">
+        </div>
+
+        <button id="sell_button" type="submit">sell</button>
+        </form>
+    </div>
+{% endblock %}

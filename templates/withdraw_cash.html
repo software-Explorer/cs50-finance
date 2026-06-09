@@ -1,0 +1,109 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    <title>cash withdraw</title>
+{% endblock %}
+
+{% block head %}
+<script>
+    // 1. Pass the Python dictionary into Javascript JSON object.
+    const destination_data = {{ destination | tojson | safe }};
+
+
+    document.addEventListener("DOMContentLoaded", function(){
+        let withdraw_medium = document.getElementById("withdraw_medium");
+        let options_dropdown = document.getElementById("destinations_name");
+
+
+        // Listen changes for first drop down menu
+        withdraw_medium.addEventListener("change", function(){
+            // clear all the options of second menu
+            options_dropdown.innerHTML = '<option disabled selected></option>';
+
+
+            let selectedMedium = withdraw_medium.value;
+
+            // 3. If a valid medium is selected then populate second menu
+            if (selectedMedium && destination_data[selectedMedium]){
+                destination_data[selectedMedium].forEach(function(item){
+                    // Create new <option> tag
+                        let optionTag = document.createElement('option');
+                        optionTag.value = item;
+                        optionTag.textContent = item;
+
+                  // add option to the second menu
+                  options_dropdown.appendChild(optionTag);
+                });
+            }
+
+        });
+    });
+</script>
+
+<style>
+    /* The container of select menu*/
+    .form_row{
+        display:flex;
+        align-items:center;
+        margin-bottom:20px;
+        width:100%;
+    }
+
+    /* Fixed width for labels so inputs start at same vertical line */
+    label {
+        width: 150px;
+        text-align: left;
+        font-weight: bold;
+    }
+
+    /* Make both inputs same width and reach the same right edge */
+    input,select {
+        flex: 1; /* This tells the input to groe and full the rest of the row*/
+        padding: 6px;
+        box-sizing: border-box;
+    }
+
+    button {
+        margin-top: 15px;
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+    <h1 style="margin-bottom:20px">Withdraw cash</h1>
+
+    <div style="width:50%; margin:auto;">
+        <form action="/withdraw_cash" method="POST">
+
+            <div class="form_row">
+                <label for="withdraw_medium">Withdraw Medium:</label>
+                <select id="withdraw_medium" name="name" required>
+                    <option selected disabled value="">&nbsp;</option>
+                    {% for name in destination%}
+                        <option value="{{ name }}">{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form_row">
+                <label for="destinations_name">Option:</label>
+                <select id="destinations_name" name="sub_name" required>
+                    <option selected disabled value=""> &nbsp; </option>
+                </select>
+            </div>
+
+            <div class="form_row">
+                <label for="id_number">Reciever ID number:</label>
+                <input type="text" id="id_number" autocomplete="off" placeholder="ex:10023abc" name="id_number" required>
+            </div>
+
+            <div class="form_row">
+                <label for="amount">Amount:</label>
+                <input type="number" id="amount" step="0.01" autocomplete="off" placeholder="ex:1000" name="amount" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="withdraw_button">Withdraw</button>
+        </form>
+    </div>
+{% endblock %}

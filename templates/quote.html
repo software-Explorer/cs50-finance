@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Honk:MORF@15&display=swap" rel="stylesheet">
+<link href="../static/my_styles.css" rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+<h1 class="honk" id="title"> Search share price of a company</h1>
+<form action="/quote" method="POST">
+    <input name="symbol" autofocus autocomplete="off" type="text" >
+    <button id="quote_button" type="submit">Submit</button>
+</form>
+{% endblock %}
+

@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block main %}
+<div> <h1 style="margin-bottom:1.75rem">History</h1>
+
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+    <thead class="table-dark">
+        <tr>
+            <td>number</td>
+            <td>type</td> <td><strong>symbol</strong></td> <td>shares</td> <td>price</td> <td>total</td> <td>date\time</td>
+        </tr>
+    </thead>
+
+     <tbody>
+         {% for transaction in history_table %}
+         <tr>
+             <td>{{transaction["number"]}}</td>
+             <td>{{transaction["type"]}}</td>
+             <td>{{transaction["symbol"]}}</td>
+             <td>{{transaction["shares"]}}</td>
+             <td>{{transaction["price"] |usd}}</td>
+             <td>{{transaction["total"] | usd}}</td>
+             <td>{{transaction["timestamp"]}}</td>
+         </tr>
+         {% endfor %}
+     </tbody>
+</table>
+
+</div>
+{% endblock %}

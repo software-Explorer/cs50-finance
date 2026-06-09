@@ -1,0 +1,277 @@
+{% extends "layout.html" %}
+
+{% block head %}
+
+<title>Portfolio Dashboard</title>
+    <style>
+        thead td {
+            background-color: rgb(100, 200, 100) !important;
+            color: white;
+            border-bottom: 2px solid red;
+            text-transform: uppercase !important;
+        }
+
+        #buy_or_sell {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            gap: 2%;
+            justify-content: center;
+        }
+
+        #answerBuy, #answerSell, #answerDeposit, #answerWithdraw {
+            width: 20%;
+            margin-bottom: 5px;
+            padding: 8px;
+        }
+
+        #submit {
+            display: block;
+            margin: 15px auto 5px auto;
+            width: 50%;
+        }
+
+        #after_main {
+            background-color: lightblue;
+            border: 2px solid #333;
+            padding: 15px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 1000;
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            justify-content: start;
+            margin-top: 10px;
+            gap: 10px;
+        }
+
+        .stock-row {
+            cursor: pointer;
+        }
+
+        #withdraw-fields, #deposit-fields, #stock-fields{
+            justify-content: center;
+        }
+
+        /* Utility class to hide elements */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+            let buyButton = document.getElementById("answerBuy");
+            let sellButton = document.getElementById("answerSell");
+            let depositButton = document.getElementById("answerDeposit");
+            let withdrawButton = document.getElementById("answerWithdraw");
+            let mainForm = document.querySelector("form");
+
+            // Form container blocks
+            let stockFields = document.getElementById("stock-fields");
+            let withdrawFields = document.getElementById("withdraw-fields");
+            let depositFields = document.getElementById("deposit-fields");
+
+            // Safely import destination data from Flask
+            const destination_data = {{ destination | tojson | safe if destination else "{}" }};
+
+            // --- Navigation Button Logic ----
+            buyButton.addEventListener('click', function(){
+                buyButton.style.backgroundColor = "lightgreen";
+                sellButton.style.backgroundColor = "";
+                depositButton.style.backgroundColor = "";
+                withdrawButton.style.backgroundColor = "";
+
+                stockFields.classList.remove("hidden");
+                withdrawFields.classList.add("hidden");
+                depositFields.classList.add("hidden");
+
+                mainForm.action = "/buy";
+            });
+
+            sellButton.addEventListener('click', function(){
+                sellButton.style.backgroundColor = "lightgreen";
+                buyButton.style.backgroundColor = "";
+                depositButton.style.backgroundColor = "";
+                withdrawButton.style.backgroundColor = "";
+
+                stockFields.classList.remove("hidden");
+                withdrawFields.classList.add("hidden");
+                depositFields.classList.add("hidden");
+
+                mainForm.action = "/sell";
+            });
+
+            depositButton.addEventListener('click', function(){
+                depositButton.style.backgroundColor = "lightgreen";
+                buyButton.style.backgroundColor = "";
+                sellButton.style.backgroundColor = "";
+                withdrawButton.style.backgroundColor = "";
+
+                depositFields.classList.remove("hidden");
+                stockFields.classList.add("hidden");
+                withdrawFields.classList.add("hidden");
+
+                mainForm.action = "/cash_deposit"; // Updated to match your Flask route
+            });
+
+            withdrawButton.addEventListener('click', function(){
+                withdrawButton.style.backgroundColor = "lightgreen";
+                buyButton.style.backgroundColor = "";
+                sellButton.style.backgroundColor = "";
+                depositButton.style.backgroundColor = "";
+
+                withdrawFields.classList.remove("hidden");
+                stockFields.classList.add("hidden");
+                depositFields.classList.add("hidden");
+
+                mainForm.action = "/withdraw_cash"; // Updated to match your Flask route
+            });
+
+            // --- Dynamic Withdraw Menu Logic ---
+            let withdraw_medium = document.getElementById("withdraw_medium"); // Fixed missing 'document.'
+            let options_dropdown = document.getElementById("destinations_name"); // Fixed missing 'document.'
+
+            withdraw_medium.addEventListener('change', function(){
+                options_dropdown.innerHTML = '<option selected disabled ></option>';
+                let selectedMedium = withdraw_medium.value;
+
+                // Fixed: Removed quotes around selectedMedium to make it look up the dynamic variable
+                if (selectedMedium && destination_data[selectedMedium]){
+                    destination_data[selectedMedium].forEach(function(item){
+                        let optionTag = document.createElement('option');
+                        optionTag.value = item;
+                        optionTag.textContent = item;
+                        options_dropdown.appendChild(optionTag);
+                    });
+                }
+            });
+
+            // ---- Table Interaction Logic ---
+            const rows = document.querySelectorAll(".stock-row");
+            const symbolInput = document.getElementById("symbol");
+            const sharesInput = document.getElementById("shares");
+
+            rows.forEach(row => {
+                row.addEventListener('click', function(){
+                    // Automatically trigger the sell mode if a row is clicked
+                    sellButton.click();
+
+                    // Clear previous highlights
+                    document.querySelectorAll("tbody tr td").forEach(td => td.style.backgroundColor="");
+
+                    // Highlight cells of clicked row
+                    this.querySelectorAll("td").forEach(td => td.style.backgroundColor="rgba(144, 236, 144, 0.5)");
+
+                    const symbol = this.querySelector(".symbol-cell").textContent.trim();
+                    const shares = this.querySelector(".shares-cell").textContent.trim();
+
+                    symbolInput.value = symbol;
+                    sharesInput.value = shares;
+                });
+            });
+
+            // Set initial default visual state
+            buyButton.click();
+        });
+    </script>
+{% endblock %}
+
+{% block main %}
+<div> <table class="table table-striped align-middle">
+        <thead class="table-dark">
+            <tr>
+                <td>symbol</td>
+                <td>shares</td>
+                <td>current price</td>
+                <td>total value</td>
+            </tr>
+         </thead>
+         <tbody>
+                {% for stock in portfolio %}
+                    <tr class="stock-row" id="row_{{ loop.index }}">
+                        <td class="symbol-cell"><strong>{{ stock.symbol }}</strong></td>
+                        <td class="shares-cell">{{ stock.shares }}</td>
+                        <td>{{ stock.price | usd }}</td>
+                        <td>{{ stock.total | usd }}</td>
+                    </tr>
+                {% endfor %}
+
+                <tr>
+                    <td colspan="2"></td>
+                    <td class="text-end"><strong>Total:</strong></td>
+                    <td>{{ stocks_total_value | usd }}</td>
+                </tr>
+                <tr>
+                    <td colspan="2"></td>
+                    <td class="text-end"><strong>Cash Balance:</strong></td>
+                    <td>{{ cash | usd }}</td>
+                </tr>
+                <tr class="table-success">
+                    <td colspan="2"></td>
+                    <td class="text-end"><strong>Grand Total:</strong></td>
+                    <td>{{ grand_total | usd }}</td>
+                </tr>
+            </tbody>
+    </table>
+</div>
+
+<div id="after_main">
+    <form action="/buy" method="POST">
+        <div id="buy_or_sell">
+            <button type="button" id="answerBuy">Buy stock</button>
+            <button type="button" id="answerSell">Sell stock</button>
+            <button type="button" id="answerDeposit">Deposit cash</button>
+            <button type="button" id="answerWithdraw">Withdraw cash</button>
+        </div>
+
+        <div id="stock-fields" class="form-row">
+            <label for="symbol">Stock symbol:</label>
+            <input id="symbol" name="symbol" type="text" placeholder="e.g. NFLX" autocomplete="off">
+
+            <span>|</span>
+            <label for="shares">Number of shares:</label>
+            <input id="shares" name="shares" type="number" placeholder="0" autocomplete="off">
+        </div>
+
+        <div id="withdraw-fields" class="form-row hidden">
+            <label for="withdraw_medium">Medium:</label>
+            <select id="withdraw_medium" name="name">
+                <option selected disabled></option>
+                {% if destination %}
+                    {% for name in destination %}
+                        <option value="{{ name }}">{{ name }}</option>
+                    {% endfor %}
+                {% endif %}
+            </select>
+
+            <span>|</span>
+            <label for="destinations_name">Option:</label>
+            <select id="destinations_name" name="sub_name">
+                <option selected disabled >-- Select option--</option>
+            </select>
+
+            <span>|</span>
+            <label for="id_number">ID:</label>
+            <input id="id_number" name="id_number" type="text" placeholder="ex: 12tar" autocomplete="off">
+
+            <span>|</span>
+            <label for="withdraw_amount">Amount:</label>
+            <input id="withdraw_amount" name="amount" type="number" step="0.01" placeholder="ex: 1000">
+        </div>
+
+        <div id="deposit-fields" class="form-row hidden">
+            <label for="deposit_amt">Deposit cash:</label>
+            <input id="deposit_amt" name="deposit_amt" type="number" step="0.01" autocomplete="off" placeholder="ex: 1000">
+        </div>
+
+        <button id="submit" type="submit" class="btn btn-primary">Submit Execution</button>
+    </form>
+</div>
+{% endblock %}

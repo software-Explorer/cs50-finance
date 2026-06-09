@@ -1,0 +1,122 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Register
+{% endblock %}
+
+{% block main %}
+    <form action="/register" method="POST">
+        <div class="mb-3">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="username" placeholder="Username" type="text">
+        </div>
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" name="password" placeholder="Password" type="password" autocomplete="off">
+        </div>
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" name="confirmation" placeholder="Password(again)" type="password" autocomplete="off">
+        </div>
+<!-- Asia -->
+<!-- Code and Name -->
+        <p style="display:inline block"> Select Country: </p>
+<select name="country" id = "country">
+    <optgroup label="Select country">
+        <option value="" disabled selected hidden>Select country</option>
+        <option value="AF">Afghanistan</option>
+        <option value="AM">Armenia</option>
+        <option value="AZ">Azerbaijan</option>
+        <option value="BH">Bahrain</option>
+        <option value="BD">Bangladesh</option>
+        <option value="BT">Bhutan</option>
+        <option value="IO">British Indian Ocean Territory</option>
+        <option value="BN">Brunei Darussalam</option>
+        <option value="KH">Cambodia</option>
+        <option value="CN">China</option>
+        <option value="CX">Christmas Island</option>
+        <option value="CC">Cocos (Keeling) Islands</option>
+        <option value="CY">Cyprus</option>
+        <option value="GE">Georgia</option>
+        <option value="HK">Hong Kong</option>
+        <option value="IN">India</option>
+        <option value="ID">Indonesia</option>
+        <option value="IR">Iran</option>
+        <option value="IQ">Iraq</option>
+        <option value="IL">Israel</option>
+        <option value="JP">Japan</option>
+        <option value="JO">Jordan</option>
+        <option value="KZ">Kazakhstan</option>
+        <option value="KP">Korea, North</option>
+        <option value="KR">Korea, South</option>
+        <option value="KW">Kuwait</option>
+        <option value="KG">Kyrgyzstan</option>
+        <option value="LA">Lao People's Democratic Republic</option>
+        <option value="LB">Lebanon</option>
+        <option value="MO">Macao</option>
+        <option value="MY">Malaysia</option>
+        <option value="MV">Maldives</option>
+        <option value="MN">Mongolia</option>
+        <option value="MM">Myanmar (Burma)</option>
+        <option value="NP">Nepal</option>
+        <option value="OM">Oman</option>
+        <option value="PK">Pakistan</option>
+        <option value="PS">Palestine</option>
+        <option value="PH">Philippines</option>
+        <option value="QA">Qatar</option>
+        <option value="RU">Russian Federation</option>
+        <option value="SA">Saudi Arabia</option>
+        <option value="SG">Singapore</option>
+        <option value="LK">Sri Lanka</option>
+        <option value="SY">Syria</option>
+        <option value="TW">Taiwan</option>
+        <option value="TJ">Tajikistan</option>
+        <option value="TH">Thailand</option>
+        <option value="TL">Timor-Leste</option>
+        <option value="TR">Turkey (Türkiye)</option>
+        <option value="TM">Turkmenistan</option>
+        <option value="AE">United Arab Emirates</option>
+        <option value="UZ">Uzbekistan</option>
+        <option value="VN">Vietnam</option>
+        <option value="YE">Yemen</option>
+    </optgroup>
+</select>
+
+<div id="districtDiv"></div>
+
+<!-- total - 55 -->
+    <button style="display:inline-block" class="btn btn-primary" type="submit">Register</button>
+    </form>
+
+
+
+<!-- Script to show district option if Nepal is selected-->
+ <script>
+    // 1. Get our elements
+    let countrySelect = document.getElementById('country');
+    let districtDiv = document.getElementById('districtDiv');
+
+    // 2. Add a 'change' event listener
+    countrySelect.addEventListener('change', function() {
+
+        // 3. Check the VALUE, not the name
+        if (this.value === "NP") {
+            // 4. Use backticks `` for multi-line HTML strings
+            districtDiv.innerHTML = `
+                <p style="display:inline-block">Select district:</p>
+                <select name="district">
+                    {% for province, districts in province_map.items() %}
+                        <optgroup label="{{ province }}">
+                            {% for district in districts %}
+                                <option value="{{ district }}">{{ district }}</option>
+                            {% endfor %}
+                        </optgroup>
+                    {% endfor %}
+                </select>
+            `;
+        } else {
+            // Clear the div if any other country is selected
+            districtDiv.innerHTML = '';
+        }
+    });
+</script>
+{% endblock %}
+
+

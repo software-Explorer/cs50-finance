@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+
+{% block head %}
+    <style>
+
+        /* The conatainer for each row */
+        .form-row{
+            display:flex;
+            align-items:center;
+            margin-bottom: 15px; /* Spacing between lines */
+            width: 100%;
+        }
+
+        /* Fixed width for labels so inputs start at the same vertiacal line */
+        label {
+            width: 150px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        /* Make both inputs same width and reach the same right edge */
+        input {
+            flex: 1; /* This tells the input to grow and fill the rest of the row */
+            padding: 5px;
+        }
+
+        #submit {
+            margin-top: 10px;
+            width: 100%; /* Optional: makes button as wide as the rows*/
+        }
+
+    </style>
+
+{% endblock %}
+
+
+{% block main %}
+    <h1 style="margin-bottom:15px;">Buy the stock</h1>
+    <div style="width:50%; margin:auto;">
+        <form action="/buy" method="POST">
+            <div class="form-row">
+                <label for="symbol">Stock symbol:</label>
+                <input id="symbol" name="symbol" type="text" placeholder="e.g. NFLX" autocomplete="off">
+            </div>
+
+            <div class="form-row">
+                <label for="shares">Number of shares:</label>
+                <input id="shares" name="shares" type="number" placeholder="0" autocomplete="off">
+            </div>
+
+            <button id="submit" type="submit">Buy</button>
+        </form>
+    </div>
+{% endblock %}
