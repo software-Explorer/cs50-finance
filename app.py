@@ -305,7 +305,7 @@ def sell():
 
     # dictionary containing symbols and shares
     symbol_n_shares = db.execute(
-        "SELECT symbol, SUM(shares) AS shares FROM transactions WHERE user_id = ? GROUP BY symbol", user_id)
+        "SELECT symbol, SUM(shares) AS shares FROM transactions WHERE user_id = ? AND type NOT IN ('cash_deposit','cash_withdraw') GROUP BY symbol", user_id)
     return render_template("sell_shares.html", symbol_n_shares=symbol_n_shares)
 
 
